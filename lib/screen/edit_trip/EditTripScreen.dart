@@ -19,7 +19,7 @@ class _EditTripState extends State<EditTripScreen> {
   Widget _datePicker() {
     return RaisedButton(
       child: Text(_createdAt),
-      color: Colors.yellow,
+      color: Colors.amberAccent,
       textColor: Colors.black,
       onPressed: () async {
         final today = DateTime.now();

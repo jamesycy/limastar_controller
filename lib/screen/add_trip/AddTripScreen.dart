@@ -16,7 +16,7 @@ class _AddTripScreenState extends State<AddTripScreen> {
     final today = DateTime.now();
     return RaisedButton(
       child: Text(_createdAt == null ? "Please Pick a date" : _createdAt.toString()),
-      color: Colors.yellow,
+      color: Colors.amberAccent,
       textColor: Colors.black,
       onPressed: () async {
         final date = await showDatePicker(
@@ -39,7 +39,7 @@ class _AddTripScreenState extends State<AddTripScreen> {
         "title": _title.text,
         "created_at": _createdAt.toString(),
         "active": _active,
-        "helpers": []
+        "helpers": 0
       }).then((_) {
         Navigator.of(context).pop();
       }).catchError((error) {
@@ -98,23 +98,18 @@ class _AddTripScreenState extends State<AddTripScreen> {
                     ]
                   )
                 )
-              ),
-
-              Container(
-                width: double.infinity,
-                child: RaisedButton(
-                  color: Colors.blueAccent,
-                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                  textColor: Colors.white,
-                  child: Text("Create Trip", style: TextStyle(fontSize: 16.0)),
-                  onPressed: () {
-                    _createTrip();
-                  }
-                )
               )
             ],
           )
-        )
+        ),
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.amberAccent,
+          foregroundColor: Colors.black,
+          child: Icon(Icons.save),
+          onPressed: () {
+            _createTrip();
+          }
+        ),
       );
     }
 }

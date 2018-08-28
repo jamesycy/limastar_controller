@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:limastar_controller/util/trip.dart';
 import 'package:limastar_controller/screen/edit_trip/EditTripScreen.dart';
 import 'package:limastar_controller/screen/helper_list/HelperListScreen.dart';
 
@@ -15,8 +16,7 @@ class TripDetailScreen extends StatelessWidget {
       content: Text("Are you sure to remove this trip record ?"),
       actions: <Widget>[
         FlatButton(
-          color: Colors.redAccent,
-          textColor: Colors.white,
+          textColor: Colors.redAccent,
           child: Text("Yes, I'm sure"),
           onPressed: () async {
             Navigator.of(alertContext).pop();
@@ -25,8 +25,7 @@ class TripDetailScreen extends StatelessWidget {
           },
         ),
         FlatButton(
-          color: Colors.blueAccent,
-          textColor: Colors.white,
+          textColor: Colors.blueAccent,
           child: Text("No"),
           onPressed: () {
             Navigator.of(alertContext).pop();
@@ -37,20 +36,16 @@ class TripDetailScreen extends StatelessWidget {
     );
   }
 
+  void _navigateToEdit(BuildContext context) {
+    final route = MaterialPageRoute(builder: (BuildContext context) => EditTripScreen(tripid: tripid));
+    Navigator.of(context).push(route);
+  }
+
   @override
     Widget build(BuildContext context) {
       return Scaffold(
         appBar: AppBar(
           title: Text("Trip Detail"),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.edit),
-              onPressed: () {
-                final route = MaterialPageRoute(builder: (BuildContext context) => EditTripScreen(tripid: tripid));
-                Navigator.of(context).push(route);
-              }
-            )
-          ],
         ),
         body: StreamBuilder(
           stream: _fs.collection("trips").document(this.tripid).snapshots(),
@@ -61,41 +56,34 @@ class TripDetailScreen extends StatelessWidget {
               );
             }
 
-            final data = snapshot.data;
-
-            if (data.data == null) {
+            if (snapshot.data.data == null) {
               return Center(
                 child: Text("Trip Deleted")
               );
             }
 
+            final data = Trip.fromJson(snapshot.data.data, snapshot.data.documentID);
+
             return Container(
               child: Column(
                 children: <Widget>[
-                  ListTile(leading: Icon(Icons.text_fields), title: Text("Trip Title"), trailing: Text(data.data['title'])),
-                  ListTile(leading: Icon(Icons.date_range), title: Text("Trip Date"), trailing: Text(data.data['created_at'])),
-                  ListTile(leading: Icon(Icons.share), title: Text("Trip Status"), trailing: Text((data.data['active'] as bool) ? "Active" : "Inactive")),
-                  ListTile(leading: Icon(Icons.list), title: Text("Helpers"), trailing: Text(data.data["helpers"].length.toString())),
-                  Container(
-                    width: double.infinity,                    
-                    margin: EdgeInsets.all(20.0),
-                    child: RaisedButton(
-                      padding: EdgeInsets.symmetric(vertical: 12.0),
-                      child: Text("View Helpers", style: TextStyle(fontSize: 16.0)),
-                      color: Colors.blueAccent,
-                      textColor: Colors.white,
-                      onPressed: () {
-                        final route = MaterialPageRoute(builder: (BuildContext context) => HelperListScreen(tripid: tripid));
-                        Navigator.of(context).push(route);
-                      },
-                    )
+                  ListTile(leading: Icon(Icons.text_fields), title: Text("Trip Title"), subtitle: Text(data.title), onLongPress: () { _navigateToEdit(context); }),
+                  ListTile(leading: Icon(Icons.date_range), title: Text("Trip Date"), subtitle: Text(data.createdAt), onLongPress: () { _navigateToEdit(context); }),
+                  ListTile(leading: Icon(Icons.share), title: Text("Trip Status"), subtitle: Text(data.active ? "Active" : "Inactive"), onLongPress: () { _navigateToEdit(context); }),
+                  ListTile(leading: Icon(Icons.list), title: Text("Helpers"), subtitle: Text(data.helpers.toString()),
+                    onLongPress: () { _navigateToEdit(context); },
+                    onTap: () { 
+                      final route = MaterialPageRoute(builder: (BuildContext context) => HelperListScreen(tripid: tripid));
+                      Navigator.of(context).push(route);
+                    }
                   ),
+
                   Container(
                     width: double.infinity,
-                    margin: EdgeInsets.symmetric(horizontal: 20.0),
+                    margin: EdgeInsets.all(20.0),
                     child: RaisedButton(
-                      padding: EdgeInsets.symmetric(vertical: 12.0),
-                      child: Text("Delete Trip", style: TextStyle(fontSize: 16.0)),
+                      padding: EdgeInsets.symmetric(vertical: 14.0),
+                      child: Text("Delete Trip", style: TextStyle(fontSize: 17.0)),
                       color: Colors.redAccent,
                       textColor: Colors.white,
                       onPressed: () {
